@@ -8,8 +8,10 @@
     "dev:backend": "cd backend && node server.js",
     "dev:frontend": "cd frontend && npx vite",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "build": "cd frontend && npx vite build",
-    "start": "npm run build && cd backend && node server.js"
+
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+
+    "start": "cd backend && node server.js"
   },
   "keywords": ["banking", "fintech", "microservices", "ledger"],
   "license": "MIT"
